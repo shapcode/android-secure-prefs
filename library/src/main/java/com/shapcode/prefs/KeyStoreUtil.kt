@@ -8,7 +8,7 @@ import java.security.KeyStore
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 
-object KeyStoreUtil {
+internal object KeyStoreUtil {
 
     private const val ANDROID_KEYSTORE = "AndroidKeyStore"
 

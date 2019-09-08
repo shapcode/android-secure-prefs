@@ -11,7 +11,7 @@ import java.security.spec.AlgorithmParameterSpec
 import javax.crypto.*
 import javax.crypto.spec.GCMParameterSpec
 
-object CryptoUtil {
+internal object CryptoUtil {
 
     private const val LOG_MESSAGE_FAILED_TO_ENCRYPT = "Failed to encrypt."
     private const val LOG_MESSAGE_FAILED_TO_DECRYPT = "Failed to decrypt."

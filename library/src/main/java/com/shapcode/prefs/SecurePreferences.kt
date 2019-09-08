@@ -20,6 +20,9 @@ class SecurePreferences(context: Context, name: String) : SharedPreferences {
         return keys
     }
 
+    /**
+     * Retrieve all decrypted values from the preferences. Any values that cannot be decrypted are not returned.
+     */
     override fun getAll(): Map<String, String> {
         val encryptedMap = sharedPreferences.all
         val decryptedMap = mutableMapOf<String, String>()
@@ -33,6 +36,16 @@ class SecurePreferences(context: Context, name: String) : SharedPreferences {
         return decryptedMap
     }
 
+    /**
+     * Retrieves a decrypted String value from the preferences.
+     *
+     * @param key The name of the preference to retrieve
+     * @param defaultValue Value to return if this preference does not exist.
+     *
+     * @return Returns the decrypted preference value if it exists, or defaultValue.
+     *
+     * @see android.content.SharedPreferences.getString
+     */
     override fun getString(key: String, defaultValue: String?): String? {
         sharedPreferences.getString(keys[key], null)?.also { encryptedValue ->
             return decrypt(encryptedValue)
@@ -40,6 +53,16 @@ class SecurePreferences(context: Context, name: String) : SharedPreferences {
         return defaultValue
     }
 
+    /**
+     * Retrieves a set of decrypted String values from the preferences.
+     *
+     * @param key The name of the preference to retrieve
+     * @param defaultValue Value to return if this preference does not exist.
+     *
+     * @return Returns the decrypted preference value if it exists, or defaultValue.
+     *
+     * @see android.content.SharedPreferences.getStringSet
+     */
     override fun getStringSet(key: String, defaultValues: Set<String>?): Set<String>? {
         val encryptedSet = sharedPreferences.getStringSet(keys[key], null) ?: return defaultValues
         val decryptedSet = mutableSetOf<String>()
@@ -51,11 +74,21 @@ class SecurePreferences(context: Context, name: String) : SharedPreferences {
         return decryptedSet
     }
 
+    /**
+     * Retrieves a decrypted int value from the preferences.
+     *
+     * @param key The name of the preference to retrieve
+     * @param defaultValue Value to return if this preference does not exist.
+     *
+     * @return Returns the decrypted preference value if it exists, or defaultValue. Throws ClassCastException if there is a preference with this name that is not an int.
+     *
+     * @see android.content.SharedPreferences.getInt
+     */
     override fun getInt(key: String, defaultValue: Int): Int {
         sharedPreferences.getString(keys[key], null)?.let { encryptedValue ->
             try {
                 val decryptedValue = decrypt(encryptedValue)
-                return Integer.parseInt(decryptedValue)
+                return decryptedValue.toInt()
             } catch (e: NumberFormatException) {
                 throw ClassCastException(e.message)
             }
@@ -63,11 +96,21 @@ class SecurePreferences(context: Context, name: String) : SharedPreferences {
         return defaultValue
     }
 
+    /**
+     * Retrieves a decrypted long value from the preferences.
+     *
+     * @param key The name of the preference to retrieve
+     * @param defaultValue Value to return if this preference does not exist.
+     *
+     * @return Returns the decrypted preference value if it exists, or defaultValue. Throws ClassCastException if there is a preference with this name that is not a long.
+     *
+     * @see android.content.SharedPreferences.getLong
+     */
     override fun getLong(key: String, defaultValue: Long): Long {
         sharedPreferences.getString(keys[key], null)?.let { encryptedValue ->
             try {
                 val decryptedValue = decrypt(encryptedValue)
-                return java.lang.Long.parseLong(decryptedValue)
+                return decryptedValue.toLong()
             } catch (e: NumberFormatException) {
                 throw ClassCastException(e.message)
             }
@@ -75,11 +118,21 @@ class SecurePreferences(context: Context, name: String) : SharedPreferences {
         return defaultValue
     }
 
+    /**
+     * Retrieves a decrypted float value from the preferences.
+     *
+     * @param key The name of the preference to retrieve
+     * @param defaultValue Value to return if this preference does not exist.
+     *
+     * @return Returns the decrypted preference value if it exists, or defaultValue. Throws ClassCastException if there is a preference with this name that is not a float.
+     *
+     * @see android.content.SharedPreferences.getFloat
+     */
     override fun getFloat(key: String, defaultValue: Float): Float {
         sharedPreferences.getString(keys[key], null)?.let { encryptedValue ->
             try {
                 val decryptedValue = decrypt(encryptedValue)
-                return java.lang.Float.parseFloat(decryptedValue)
+                return decryptedValue.toFloat()
             } catch (e: NumberFormatException) {
                 throw ClassCastException(e.message)
             }
@@ -87,30 +140,62 @@ class SecurePreferences(context: Context, name: String) : SharedPreferences {
         return defaultValue
     }
 
+    /**
+     * Retrieves a decrypted boolean value from the preferences.
+     *
+     * @param key The name of the preference to retrieve
+     * @param defaultValue Value to return if this preference does not exist.
+     *
+     * @return Returns the decrypted preference value if it exists, or defaultValue. Throws ClassCastException if there is a preference with this name that is not a boolean.
+     *
+     * @see android.content.SharedPreferences.getLong
+     */
     override fun getBoolean(key: String, defaultValue: Boolean): Boolean {
         sharedPreferences.getString(keys[key], null)?.let { encryptedValue ->
-            try {
-                val decryptedValue = decrypt(encryptedValue)
-                return java.lang.Boolean.parseBoolean(decryptedValue)
-            } catch (e: NumberFormatException) {
-                throw ClassCastException(e.message)
-            }
+            val decryptedValue = decrypt(encryptedValue)
+            return decryptedValue.toBoolean()
         }
         return defaultValue
     }
 
+    /**
+     * Checks whether the preferences contains a preference.
+     *
+     * @param key The name of the preference to check
+     *
+     * @return Returns true if the preference exists in the preferences, otherwise false.
+     *
+     * @see android.content.SharedPreferences.contains
+     */
     override fun contains(key: String): Boolean {
         return sharedPreferences.contains(keys[key])
     }
 
+    /**
+     * Create a new Editor for these preferences, through which you can make modifications to the data in the preferences and atomically commit those changes back to the SharedPreferences object.
+     *
+     * @return Returns a new instance of the [SharedPreferences.Editor] interface, allowing you to modify the values in this SharedPreferences object.
+     *
+     * @see SharedPreferences.registerOnSharedPreferenceChangeListener
+     */
     override fun edit(): SharedPreferences.Editor {
         return SecureEditor(keys, sharedPreferences.edit())
     }
 
+    /**
+     * Registers a callback to be invoked when a change happens to a preference.
+     */
     override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {
         sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
     }
 
+    /**
+     * Unregisters a previous callback.
+     *
+     * @param listener The callback that should be unregistered.
+     *
+     * @see SharedPreferences.unregisterOnSharedPreferenceChangeListener
+     */
     override fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener?) {
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener)
     }
@@ -123,25 +208,32 @@ class SecurePreferences(context: Context, name: String) : SharedPreferences {
 
         val tempKeys = existingKeys.toMutableMap()
 
-        override fun putString(key: String, value: String): SharedPreferences.Editor {
+        override fun putString(key: String, value: String?): SharedPreferences.Editor {
             if (!tempKeys.containsKey(key)) {
                 tempKeys[key] = encrypt(key)
             }
-            wrappedEditor.putString(tempKeys[key], encrypt(value))
+            if (value != null) {
+                wrappedEditor.putString(tempKeys[key], encrypt(value))
+            } else {
+                wrappedEditor.putString(tempKeys[key], null)
+            }
             return this
         }
 
-        override fun putStringSet(key: String, values: Set<String>): SharedPreferences.Editor {
-
-            val encryptedValues = mutableSetOf<String>()
-            for (value in values) {
-                encryptedValues.add(encrypt(value))
-            }
-
+        override fun putStringSet(key: String, values: Set<String>?): SharedPreferences.Editor {
             if (!tempKeys.containsKey(key)) {
                 tempKeys[key] = encrypt(key)
             }
-            wrappedEditor.putStringSet(tempKeys[key], encryptedValues)
+
+            if (values != null) {
+                val encryptedValues = mutableSetOf<String>()
+                for (value in values) {
+                    encryptedValues.add(encrypt(value))
+                }
+                wrappedEditor.putStringSet(tempKeys[key], encryptedValues)
+            } else {
+                wrappedEditor.putStringSet(tempKeys[key], null)
+            }
             return this
         }
 

@@ -1,17 +1,22 @@
-apply plugin: 'com.android.library'
+plugins {
+    id "com.jfrog.bintray" version "1.8.4"
+}
 
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+apply plugin: 'org.jetbrains.dokka-android'
+
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     }
 
@@ -33,11 +38,36 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
 
-    testImplementation 'org.mockito:mockito-core:2.23.0'
+    testImplementation 'org.mockito:mockito-core:3.0.0'
 
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test:core:1.2.0'
 
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.ext:truth:1.2.0'
+    androidTestImplementation 'com.google.truth:truth:1.0'
+
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+}
+
+dokka {
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+bintray {
+    user = "${bintrayUser}"
+    key = "${bintrayApiKey}"
+    pkg {
+        repo = 'maven'
+        name = 'android-secure-prefs'
+        version {
+            name = '0.0.1'
+        }
+    }
 }

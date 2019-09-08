@@ -1,12 +1,12 @@
 package com.shapcode.prefs.demo
 
-import android.arch.lifecycle.*
+import androidx.lifecycle.*
 import android.content.Context
 import android.content.SharedPreferences
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var securePreferences: SharedPreferences
+    lateinit var securePreferences: SecurePreferences
     lateinit var sharedPreferences: SharedPreferences
 
     lateinit var securePreferenceEntries: SharedPreferenceEntriesLiveData
@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                 .apply()
         }
 
-        view_decrypted.setOnCheckedChangeListener { button: CompoundButton, isChecked: Boolean ->
+        view_decrypted.setOnCheckedChangeListener { _: CompoundButton, isChecked: Boolean ->
             viewDecrypted = isChecked
             if (viewDecrypted) {
                 recycler.adapter = Adapter(securePreferences.all.entries.toList())

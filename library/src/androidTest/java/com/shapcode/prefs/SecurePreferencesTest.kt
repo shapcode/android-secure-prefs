@@ -1,6 +1,6 @@
 package com.shapcode.prefs
 
-import android.support.test.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -14,7 +14,7 @@ class SecurePreferencesTest {
     }
 
     @Test fun testDefaults() {
-        val securePreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val securePreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
         assertEquals("Default", securePreferences.getString("String", "Default"))
         assertEquals(setOf<String>(), securePreferences.getStringSet("String", setOf()))
         assertEquals(1, securePreferences.getInt("Integer", 1))
@@ -32,7 +32,7 @@ class SecurePreferencesTest {
             testData[randomString(Random.nextInt(255))] = randomString(Random.nextInt(255))
         }
 
-        val securePreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val securePreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
         val editor = securePreferences.edit()
 
         testData.entries.forEach { entry ->
@@ -49,7 +49,7 @@ class SecurePreferencesTest {
             assertEquals(entry.value, securePreferences.getString(entry.key, null))
         }
 
-        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
 
         testData.entries.forEach { entry ->
             assertEquals(entry.value, loadedPreferences.getString(entry.key, null))
@@ -70,7 +70,7 @@ class SecurePreferencesTest {
             testData[randomString(Random.nextInt(255))] = stringSet
         }
 
-        val securePreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val securePreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
         val editor = securePreferences.edit()
 
         testData.entries.forEach { entry ->
@@ -83,7 +83,7 @@ class SecurePreferencesTest {
             assertEquals(entry.value, securePreferences.getStringSet(entry.key, null))
         }
 
-        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
 
         testData.entries.forEach { entry ->
             assertEquals(entry.value, loadedPreferences.getStringSet(entry.key, null))
@@ -100,7 +100,7 @@ class SecurePreferencesTest {
             testData[randomString(Random.nextInt(255))] = Random.nextInt()
         }
 
-        val securePreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val securePreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
         val editor = securePreferences.edit()
 
         testData.entries.forEach { entry ->
@@ -119,7 +119,7 @@ class SecurePreferencesTest {
             assertEquals(entry.value, securePreferences.getInt(entry.key, 0))
         }
 
-        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
 
         testData.entries.forEach { entry ->
             assertEquals(entry.value, loadedPreferences.getInt(entry.key, 0))
@@ -136,7 +136,7 @@ class SecurePreferencesTest {
             testData[randomString(Random.nextInt(255))] = Random.nextLong()
         }
 
-        val securePreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val securePreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
         val editor = securePreferences.edit()
 
         testData.entries.forEach { entry ->
@@ -149,7 +149,7 @@ class SecurePreferencesTest {
             assertEquals(entry.value, securePreferences.getLong(entry.key, 0))
         }
 
-        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
 
         testData.entries.forEach { entry ->
             assertEquals(entry.value, loadedPreferences.getLong(entry.key, 0))
@@ -166,7 +166,7 @@ class SecurePreferencesTest {
             testData[randomString(Random.nextInt(255))] = Random.nextFloat()
         }
 
-        val securePreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val securePreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
         val editor = securePreferences.edit()
 
         testData.entries.forEach { entry ->
@@ -179,7 +179,7 @@ class SecurePreferencesTest {
             assertEquals(entry.value, securePreferences.getFloat(entry.key, 0f))
         }
 
-        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
 
         testData.entries.forEach { entry ->
             assertEquals(entry.value, loadedPreferences.getFloat(entry.key, 0f))
@@ -196,7 +196,7 @@ class SecurePreferencesTest {
             testData[randomString(Random.nextInt(255))] = Random.nextBoolean()
         }
 
-        val securePreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val securePreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
         val editor = securePreferences.edit()
 
         testData.entries.forEach { entry ->
@@ -209,7 +209,7 @@ class SecurePreferencesTest {
             assertEquals(entry.value, securePreferences.getBoolean(entry.key, false))
         }
 
-        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getContext(), "test")
+        val loadedPreferences = SecurePreferences(InstrumentationRegistry.getInstrumentation().context, "test")
 
         testData.entries.forEach { entry ->
             assertEquals(entry.value, loadedPreferences.getBoolean(entry.key, false))
