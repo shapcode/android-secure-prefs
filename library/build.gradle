@@ -1,11 +1,14 @@
 plugins {
-    id "com.jfrog.bintray" version "1.8.4"
+    id 'maven-publish'
+    id 'signing'
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'org.jetbrains.dokka-android'
+
+version = '0.0.1-SNAPSHOT'
 
 android {
     compileSdkVersion 29
@@ -14,7 +17,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -57,17 +60,137 @@ dependencies {
 
 dokka {
     outputFormat = 'javadoc'
-    outputDirectory = "$buildDir/javadoc"
+    outputDirectory = "$buildDir/docs/javadoc"
 }
 
-bintray {
-    user = "${bintrayUser}"
-    key = "${bintrayApiKey}"
-    pkg {
-        repo = 'maven'
-        name = 'android-secure-prefs'
-        version {
-            name = '0.0.1'
+task sourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+
+task javadocJar(type: Jar) {
+    archiveClassifier.set('javadoc')
+    from dokka.outputDirectory
+}
+
+javadocJar.dependsOn += dokka
+
+def getRepositoryUrl() {
+    if (version.endsWith("SNAPSHOT")) {
+        return getSnapshotRepositoryUrl()
+    } else {
+        return getReleaseRepositoryUrl()
+    }
+}
+
+def getReleaseRepositoryUrl() {
+    return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
+            : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+}
+
+def getSnapshotRepositoryUrl() {
+    return hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
+            : "https://oss.sonatype.org/content/repositories/snapshots/"
+}
+
+def getRepositoryUsername() {
+    return findProperty('REPOSITORY_USERNAME') ?: ""
+}
+
+def getRepositoryPassword() {
+    return findProperty('REPOSITORY_PASSWORD') ?: ""
+}
+
+publishing {
+    repositories {
+        maven {
+            credentials {
+                username getRepositoryUsername()
+                password getRepositoryPassword()
+            }
+            url = getRepositoryUrl()
         }
     }
+
+    publications {
+        Maven(MavenPublication) {
+
+            project.afterEvaluate {
+                artifact bundleReleaseAar
+                artifact sourcesJar
+                artifact javadocJar
+            }
+
+            groupId 'com.shapcode'
+            artifactId 'android-secure-prefs'
+
+            pom {
+                name = 'Android Secure Preferences'
+                description = 'A wrapper for Android\'s SharedPreferences interface which adds encryption to the keys and values.'
+                url = 'https://github.com/shapcode/android-secure-prefs'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'shapcode'
+                        name = 'Justin Shapcott'
+                        email = 'justin@shapcode.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:shapcode/android-secure-prefs.git'
+                    developerConnection = 'scm:git:git@github.com:shapcode/android-secure-prefs.git'
+                    url = 'https://github.com/shapcode/android-secure-prefs/'
+                }
+            }
+
+            project.afterEvaluate {
+                pom.withXml {
+                    final dependenciesNode = asNode().appendNode('dependencies')
+
+                    ext.addDependency = { dep, String scope ->
+                        if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                            return // ignore invalid dependencies
+
+                        final dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', dep.group)
+                        dependencyNode.appendNode('artifactId', dep.name)
+                        dependencyNode.appendNode('version', dep.version)
+                        dependencyNode.appendNode('scope', scope)
+
+                        if (!dep.transitive) {
+                            // If this dependency is not transitive, we should force exclude all its dependencies from the POM
+                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                            exclusionNode.appendNode('groupId', '*')
+                            exclusionNode.appendNode('artifactId', '*')
+                        } else if (!dep.properties.excludeRules.empty) {
+                            // Otherwise add specified exclude rules
+                            final exclusionsNode = dependencyNode.appendNode('exclusions')
+                            dep.properties.excludeRules.each { rule ->
+                                final exclusionNode = exclusionsNode.appendNode('exclusion')
+                                exclusionNode.appendNode('groupId', rule.group ?: '*')
+                                exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                            }
+                        }
+                    }
+
+                    // List all "compile" dependencies (for old Gradle)
+                    configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
+                    // List all "api" dependencies (for new Gradle) as "compile" dependencies
+                    configurations.api.getDependencies().each { dep -> addDependency(dep, "compile") }
+                    // List all "implementation" dependencies (for new Gradle) as "runtime" dependencies
+                    configurations.implementation.getDependencies().each { dep -> addDependency(dep, "runtime") }
+                }
+            }
+
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.Maven
 }
