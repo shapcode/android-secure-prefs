@@ -8,7 +8,7 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'org.jetbrains.dokka-android'
 
-version = '1.0.0'
+version = '1.0.1-SNAPSHOT'
 
 android {
     compileSdkVersion 29
