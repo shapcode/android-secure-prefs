@@ -20,7 +20,6 @@ android {
         versionName version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -75,11 +74,15 @@ task javadocJar(type: Jar) {
 
 javadocJar.dependsOn += dokka
 
+def isRelease() {
+    return !version.endsWith("SNAPSHOT")
+}
+
 def getRepositoryUrl() {
-    if (version.endsWith("SNAPSHOT")) {
-        return getSnapshotRepositoryUrl()
-    } else {
+    if (isRelease()) {
         return getReleaseRepositoryUrl()
+    } else {
+        return getSnapshotRepositoryUrl()
     }
 }
 
@@ -193,4 +196,8 @@ publishing {
 
 signing {
     sign publishing.publications.Maven
+}
+
+tasks.withType(Sign) {
+    onlyIf { isRelease() && gradle.taskGraph.hasTask("publish") }
 }
