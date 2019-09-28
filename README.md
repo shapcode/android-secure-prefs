@@ -1,6 +1,6 @@
 # Android Secure Preferences
 
-![https://img.shields.io/maven-central/v/com.shapcode/android-secure-prefs](https://img.shields.io/maven-central/v/com.shapcode/android-secure-prefs)
+[![Actions Status](https://github.com/shapcode/android-secure-prefs/workflows/Android%20CI/badge.svg)](https://github.com/shapcode/android-secure-prefs/actions) ![https://img.shields.io/maven-central/v/com.shapcode/android-secure-prefs](https://img.shields.io/maven-central/v/com.shapcode/android-secure-prefs)
 
 SecurePreferences is a simple wrapper for Android's SharedPreferences which adds encryption to the keys and values. The
 Android KeyStore is used to generate and store the SecretKey.
