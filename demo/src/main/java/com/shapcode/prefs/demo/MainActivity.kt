@@ -13,7 +13,7 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.TextView
 import com.shapcode.prefs.SecurePreferences
-import kotlinx.android.synthetic.main.activity_main.*
+import com.shapcode.prefs.demo.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,11 +23,16 @@ class MainActivity : AppCompatActivity() {
     lateinit var securePreferenceEntries: SharedPreferenceEntriesLiveData
     lateinit var sharedPreferenceEntries: SharedPreferenceEntriesLiveData
 
+    lateinit var viewBinding: ActivityMainBinding
+
     var viewDecrypted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        viewBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
+
         sharedPreferences = getSharedPreferences("demo", Context.MODE_PRIVATE)
         securePreferences = SecurePreferences(this, "demo")
 
@@ -51,13 +56,13 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        add.setOnClickListener {
+        viewBinding.add.setOnClickListener {
             securePreferences.edit()
-                .putString(input_key.text.toString(), input_value.text.toString())
+                .putString(viewBinding.inputKey.text.toString(), viewBinding.inputValue.text.toString())
                 .apply()
         }
 
-        view_decrypted.setOnCheckedChangeListener { _: CompoundButton, isChecked: Boolean ->
+        viewBinding.viewDecrypted.setOnCheckedChangeListener { _: CompoundButton, isChecked: Boolean ->
             viewDecrypted = isChecked
             if (viewDecrypted) {
                 recycler.adapter = Adapter(securePreferences.all.entries.toList())
